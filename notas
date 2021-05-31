@@ -1,0 +1,14 @@
+genes necesarios:
+
+operaciones -> 2 ()
+
+constante -> 1 (32 bits)
+polinomio -> de 1 a 5 (16 bits c/u)
+exponencial -> 2 (32 bits c/u)
+seno -> 2 (32 bits c/u)
+coseno -> 2 (32 bits c/u)
+
+numero -> 32 bits
+operacion -> 16 bits
+
+Total = (64 + 80 + 16) * 2 = 320 (10 int)
