@@ -23,7 +23,6 @@ typedef struct Individual {
 } Individual;
 
 Individual* first_individual;
-Individual* last_individual;
 int individuals_created;
 int max_population;
 int min;
@@ -31,6 +30,11 @@ float highest_fitness;
 float lowest_fitness;
 
 Individual** selection_ptr;
+int selected;
+Individual** crossover_ptr;
+Individual** new_offspring;
+int size_offspring;
+int limit_offspring;
 
 Function* create_function(char, int, int, int, int, int);
 Individual* create_individual(char, char);
@@ -40,7 +44,16 @@ void init_population(int);
 void free_individuals();
 float get_difference(Function*);
 void calc_fitness_temp(Individual*);
-void calc_fitness_all();
+
 void selection();
+void mix_genes(Individual*, Individual*, Individual*, Individual*, bool, bool, bool, bool);
+void crossover_temp(Individual*, Individual*);
+void crossover();
+void calc_fitness_offspring();
+void add_offspring();
+
+// test
+
+void print_population();
 
 #endif
