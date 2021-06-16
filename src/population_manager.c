@@ -406,7 +406,7 @@ void crossover() {
             crossover_ptr = temp_ptr; 
         }
         choice = rand() % to_crossover;
-        // crossover_temp(temp, *(crossover_ptr + choice));
+        crossover_temp(temp, *(crossover_ptr + choice));
         free(crossover_ptr);
         i++;
     }
@@ -428,6 +428,38 @@ void calc_fitness_offspring() {
     while (i < size_offspring) {
         calc_fitness_temp(*(new_offspring + i));
         i++;
+    }
+}
+
+void mutation_temp(Individual* ind) {
+    printf("Generation %d | ID %d mutated!\n", generations, ind->id);
+    int choice = rand() % 2;
+    int sign = rand() % 2 == 1 ? 1 : -1;
+    if (choice == 0) {
+        switch (ind->f->type) {
+            case '0':
+                ind->f->k0 += (float)rand() / (float)(RAND_MAX) * sign;
+                break;
+            
+            default:
+                break;
+        }
+    } else {
+        switch (ind->g->type) {
+            case '0':
+                ind->g->k0 += (float)rand() / (float)(RAND_MAX) * sign;
+                break;
+            
+            default:
+                break;
+        }
+    }
+}
+
+void compute_mutations() {
+    for (int i = 0; i < size_offspring; i++) {
+        if (rand() % max_population < mutation_prob) 
+            mutation_temp(*(new_offspring + i));
     }
 }
 

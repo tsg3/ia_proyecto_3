@@ -13,6 +13,7 @@ int main() {
     selection_ptr = NULL;
     crossover_ptr = NULL;
     new_offspring = NULL;
+    mutation_prob = 1;
 
     // Load function data
     if(load_data() != 0) {
@@ -29,13 +30,13 @@ int main() {
     // Initialize the population with fitness computing
     init_population(max_population);
 
-    int generations = 0;
+    generations = 0;
     // This while should continue after finding a good result
-    while (generations < 100) {
+    while (generations < 1) {
         selection();
         crossover();
         calc_fitness_offspring();
-        // compute_mutations();
+        compute_mutations();
         add_offspring();
         generations++;
     }

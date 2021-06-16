@@ -28,6 +28,8 @@ int max_population;
 int min;
 float highest_fitness;
 float lowest_fitness;
+int mutation_prob;
+int generations;
 
 Individual** selection_ptr;
 int selected;
@@ -50,7 +52,9 @@ void mix_genes(Individual*, Individual*, Individual*, Individual*, bool, bool, b
 void crossover_temp(Individual*, Individual*);
 void crossover();
 void calc_fitness_offspring();
+void compute_mutations();
 void add_offspring();
+void mutation_temp(Individual*);
 
 // test
 
