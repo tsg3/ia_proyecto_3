@@ -25,7 +25,6 @@ typedef struct Individual {
 Individual* first_individual;
 int individuals_created;
 int max_population;
-int min;
 float highest_fitness;
 float lowest_fitness;
 int mutation_prob;
@@ -44,7 +43,8 @@ Individual* create_individual(char, char);
 int get_random(int, int);
 void init_population(int);
 void free_individuals();
-float get_difference(Function*);
+float get_value(Function*, int);
+float get_difference(Individual*);
 void calc_fitness_temp(Individual*);
 
 void selection();

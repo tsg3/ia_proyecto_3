@@ -5,7 +5,6 @@ int main() {
     srand(time(NULL));
 
     max_population = 100; // Size of population
-    min = 0; // Start data
     highest_fitness = -1;
     lowest_fitness = -1;
     selection_ptr = NULL;

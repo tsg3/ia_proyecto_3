@@ -123,38 +123,33 @@ void init_population(int size) {
     // Agregar demas configuraciones de funciones
 }
 
-float get_difference(Function* func) {
-    float sum = 0;
-    int i = min;
-    Node* temp = data_start;
+float get_value(Function* func, int x) {
     switch (func->type) {
         case '0':
-            while (temp != NULL) {
-                sum += (float) pow(temp->fx - func->k0, 2);
-                temp = temp->next;
-            }
-            break;
-
-        case '1':
-            break;
-
-        case '2':
-            break;
-
-        case '3':
-            break;
-
-        case '4':
+            return func->k0;
             break;
         
         default:
             break;
     }
+}
+
+float get_difference(Individual* ind) {
+    Node* temp = data_start;
+    int i = data_start->x;
+    float sum = 0;
+
+    while (temp != NULL) {
+        sum += (float) pow(temp->fx - get_value(ind->f, i) - get_value(ind->g, i), 2);
+        i++;
+        temp = temp->next;
+    }
+
     return (float) sqrt(sum);
 }
 
 void calc_fitness_temp(Individual* individual) {
-    individual->fitness = get_difference(individual->f) + get_difference(individual->g);
+    individual->fitness = get_difference(individual);
     if (highest_fitness == -1) {
         highest_fitness = individual->fitness;
         lowest_fitness = individual->fitness;
