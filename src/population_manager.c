@@ -1,24 +1,19 @@
 #include "../include/population_manager.h"
 
-int get_random(int min_r, int max_r) {
-    int range = max_r - min_r + 1;
-    return min_r + rand() % range;
-}
-
-Function* create_function(char type, int k0, int k1, int k2, int k3, int k4) {
-    Function* func = NULL;
+Function* create_function(char type, float k0, float k1, float k2, float k3, float k4) {
+    Function* func = (Function*)malloc(sizeof(Function));
+    func->k0 = k0;
+    func->k1 = k1;
+    func->k2 = k2;
+    func->k3 = k3;
+    func->k4 = k4;
     switch (type) {
         case '0':
-            func = (Function*)malloc(sizeof(Function));
             func->type = '0';
-            func->k0 = (float) k0;
-            func->k1 = 0;
-            func->k2 = 0;
-            func->k3 = 0;
-            func->k4 = 0;
             break;
 
         case '1':
+            func->type = '1';
             break;
 
         case '2':
@@ -41,16 +36,23 @@ Individual* create_individual(char type_f, char type_g) {
     new_individual->next = NULL;
     new_individual->id = individuals_created;
     new_individual->fitness = 0;
-    Function* new_func = NULL;
+
+    Function* new_func;
+    float constant;
+    float m;
+    int bin;
     
-    // Modificar rangos de los 'get_random()' para calibrar las funciones adecuadamente
     switch (type_f) {
         case '0':
-            new_func = create_function('0', get_random(0, 100), 0, 0, 0, 0);
-            new_individual->f = new_func;
+            constant = (float)(last_y - first_y) * ((float)rand() / (float)(RAND_MAX)) + first_y;
+            new_func = create_function('0', constant, 0.0, 0.0, 0.0, 0.0);
             break;
 
         case '1':
+            bin = rand() % 2;
+            constant = pow(4.0 * ((float)rand() / (float)(RAND_MAX)), bin);
+            m = constant * approx_m;
+            new_func = create_function('1', last_y - m * last_x, m, 0.0, 0.0, 0.0);
             break;
 
         case '2':
@@ -65,15 +67,19 @@ Individual* create_individual(char type_f, char type_g) {
         default:
             break;
     }
+    new_individual->f = new_func;
 
-    // Modificar rangos de los 'get_random()' para calibrar las funciones adecuadamente
     switch (type_g) {
         case '0':
-            new_func = create_function('0', get_random(0, 100), 0, 0, 0, 0);
-            new_individual->g = new_func;
+            constant = (float)(last_y - first_y) * ((float)rand() / (float)(RAND_MAX)) + first_y;
+            new_func = create_function('0', constant, 0.0, 0.0, 0.0, 0.0);
             break;
 
         case '1':
+            bin = rand() % 2;
+            constant = pow(4.0 * ((float)rand() / (float)(RAND_MAX)), bin);
+            m = constant * approx_m;
+            new_func = create_function('1', last_y - m * last_x, m, 0.0, 0.0, 0.0);
             break;
 
         case '2':
@@ -88,6 +94,8 @@ Individual* create_individual(char type_f, char type_g) {
         default:
             break;
     }
+    new_individual->g = new_func;
+
     calc_fitness_temp(new_individual);
 
     individuals_created++;
@@ -97,9 +105,10 @@ Individual* create_individual(char type_f, char type_g) {
 void init_population(int size) {
     individuals_created = 0;
 
-    // Funciones 0 0
-    for (int _ = 0; _ < size; _++) {
-        Individual* new_individual = create_individual('0', '0');
+    for (int i = 0; i < size; i++) {
+        char f_id = ((i % 4) / 2) + '0';
+        char g_id = (i % 2) + '0';
+        Individual* new_individual = create_individual(f_id, g_id);
 
         if (first_individual == NULL) first_individual = new_individual;
         else {
@@ -127,6 +136,10 @@ float get_value(Function* func, int x) {
     switch (func->type) {
         case '0':
             return func->k0;
+            break;
+        
+        case '1':
+            return func->k1 * x + func->k0;
             break;
         
         default:
@@ -427,7 +440,7 @@ void calc_fitness_offspring() {
 }
 
 void mutation_temp(Individual* ind) {
-    printf("Generation %d | ID %d mutated!\n", generations, ind->id);
+    // printf("Generation %d | ID %d mutated!\n", generations, ind->id);
     int choice = rand() % 2;
     int sign = rand() % 2 == 1 ? 1 : -1;
     if (choice == 0) {

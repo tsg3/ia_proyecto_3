@@ -19,6 +19,14 @@ int main() {
         return -1;
     }
 
+    first_x = data_start->x;
+    first_y = data_start->fx;
+    Node* temp = data_start;
+    while (temp->next != NULL) temp = temp->next;
+    last_x = temp->x;
+    last_y = temp->fx;
+    approx_m = (last_y - first_y) / (last_x - first_x);
+
     // Printing the data
     // Node* temp = data_start;
     // while (temp != NULL){
@@ -31,7 +39,7 @@ int main() {
 
     generations = 0;
     // This while should continue after finding a good result
-    while (generations < 100) {
+    while (generations < 0) {
         selection();
         crossover();
         calc_fitness_offspring();

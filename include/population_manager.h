@@ -22,6 +22,12 @@ typedef struct Individual {
     float fitness;
 } Individual;
 
+int first_x;
+int first_y;
+int last_x;
+int last_y;
+int approx_m;
+
 Individual* first_individual;
 int individuals_created;
 int max_population;
@@ -37,10 +43,9 @@ Individual** new_offspring;
 int size_offspring;
 int limit_offspring;
 
-Function* create_function(char, int, int, int, int, int);
+Function* create_function(char, float, float, float, float, float);
 Individual* create_individual(char, char);
 
-int get_random(int, int);
 void init_population(int);
 void free_individuals();
 float get_value(Function*, int);
