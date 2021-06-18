@@ -2,32 +2,12 @@
 
 Function* create_function(char type, float k0, float k1, float k2, float k3, float k4) {
     Function* func = (Function*)malloc(sizeof(Function));
+    func->type = type;
     func->k0 = k0;
     func->k1 = k1;
     func->k2 = k2;
     func->k3 = k3;
     func->k4 = k4;
-    switch (type) {
-        case '0':
-            func->type = '0';
-            break;
-
-        case '1':
-            func->type = '1';
-            break;
-
-        case '2':
-            break;
-
-        case '3':
-            break;
-
-        case '4':
-            break;
-        
-        default:
-            break;
-    }
     return func;
 }
 
@@ -38,30 +18,86 @@ Individual* create_individual(char type_f, char type_g) {
     new_individual->fitness = 0;
 
     Function* new_func;
-    float constant;
-    float m;
-    int bin;
+    float constant, m, k2, k3, k4;
+    int bin, order;
     
     switch (type_f) {
         case '0':
-            constant = (float)(last_y - first_y) * ((float)rand() / (float)(RAND_MAX)) + first_y;
+            constant = (float)(last_y - first_y) * (2.0 * ((float)rand() / (float)(RAND_MAX)) - 1);
             new_func = create_function('0', constant, 0.0, 0.0, 0.0, 0.0);
             break;
 
         case '1':
-            bin = rand() % 2;
+            order = rand() % 4;
+            bin = rand() % 2 == 1 ? 1 : -1;
             constant = pow(4.0 * ((float)rand() / (float)(RAND_MAX)), bin);
             m = constant * approx_m;
-            new_func = create_function('1', last_y - m * last_x, m, 0.0, 0.0, 0.0);
+            switch (order) {
+                case 0:
+                    new_func = create_function('1', last_y - m * last_x, m, 0.0, 0.0, 0.0);
+                    break;
+
+                case 1:
+                    k2 = 2 * ((float)rand() / (float)(RAND_MAX)) - 1;
+                    new_func = create_function('1', last_y - m * last_x, m, k2, 0.0, 0.0);
+                    break;
+
+                case 2:
+                    k2 = 2 * ((float)rand() / (float)(RAND_MAX)) - 1;
+                    k3 = 2 * ((float)rand() / (float)(RAND_MAX)) - 1;
+                    new_func = create_function('1', last_y - m * last_x, m, k2, k3, 0.0);
+                    break;
+
+                case 3:
+                    k2 = 2 * ((float)rand() / (float)(RAND_MAX)) - 1;
+                    k3 = 2 * ((float)rand() / (float)(RAND_MAX)) - 1;
+                    k4 = 2 * ((float)rand() / (float)(RAND_MAX)) - 1;
+                    new_func = create_function('1', last_y - m * last_x, m, k2, k3, k4);
+                    break;
+
+                default:
+                    break;
+            }
             break;
 
         case '2':
+            bin = rand() % 4;
+            constant = log(pow(last_y / 1.0, 1.0 / last_x));
+            constant += 0.5 * constant * (2.0 * ((float)rand() / (float)(RAND_MAX)) - 1);
+            m = (float)(last_x - first_x) * (((float)rand() / (float)(RAND_MAX)) - 0.5);
+            switch (bin) {
+                case 1:
+                    m *= -1;
+                    break;
+                
+                case 2:
+                    m = m * exp(constant * last_y);
+                    constant *= -1;
+                    break;
+
+                case 3:
+                    m = -m * (1 + exp(constant * last_y));
+                    constant *= -1;
+                    break;
+
+                default:
+                    break;
+            }
+            new_func = create_function('2', m, constant, 0.0, 0.0, 0.0);
             break;
 
         case '3':
+            bin = rand() % 2 == 1 ? 1 : -1;
+            m = bin * last_y * ((float)rand() / (float)(RAND_MAX));
+            constant = (M_PI / (4 * last_x)) * (79 * ((float)rand() / (float)(RAND_MAX)) + 1);
+            new_func = create_function('3', m, constant, 0.0, 0.0, 0.0);
             break;
 
         case '4':
+            bin = rand() % 2 == 1 ? 1 : -1;
+            m = bin * last_y * ((float)rand() / (float)(RAND_MAX));
+            constant = (M_PI / (4 * last_x)) * (79 * ((float)rand() / (float)(RAND_MAX)) + 1);
+            new_func = create_function('4', m, constant, 0.0, 0.0, 0.0);
             break;
         
         default:
@@ -71,24 +107,81 @@ Individual* create_individual(char type_f, char type_g) {
 
     switch (type_g) {
         case '0':
-            constant = (float)(last_y - first_y) * ((float)rand() / (float)(RAND_MAX)) + first_y;
+            constant = (float)(last_y - first_y) * (2.0 * ((float)rand() / (float)(RAND_MAX)) - 1);
             new_func = create_function('0', constant, 0.0, 0.0, 0.0, 0.0);
             break;
 
         case '1':
-            bin = rand() % 2;
+            order = rand() % 4;
+            bin = rand() % 2 == 1 ? 1 : -1;
             constant = pow(4.0 * ((float)rand() / (float)(RAND_MAX)), bin);
             m = constant * approx_m;
-            new_func = create_function('1', last_y - m * last_x, m, 0.0, 0.0, 0.0);
+            switch (order) {
+                case 0:
+                    new_func = create_function('1', last_y - m * last_x, m, 0.0, 0.0, 0.0);
+                    break;
+
+                case 1:
+                    k2 = 2 * ((float)rand() / (float)(RAND_MAX)) - 1;
+                    new_func = create_function('1', last_y - m * last_x, m, k2, 0.0, 0.0);
+                    break;
+
+                case 2:
+                    k2 = 2 * ((float)rand() / (float)(RAND_MAX)) - 1;
+                    k3 = 2 * ((float)rand() / (float)(RAND_MAX)) - 1;
+                    new_func = create_function('1', last_y - m * last_x, m, k2, k3, 0.0);
+                    break;
+
+                case 3:
+                    k2 = 2 * ((float)rand() / (float)(RAND_MAX)) - 1;
+                    k3 = 2 * ((float)rand() / (float)(RAND_MAX)) - 1;
+                    k4 = 2 * ((float)rand() / (float)(RAND_MAX)) - 1;
+                    new_func = create_function('1', last_y - m * last_x, m, k2, k3, k4);
+                    break;
+
+                default:
+                    break;
+            }
             break;
 
         case '2':
+            bin = rand() % 4;
+            constant = log(pow(last_y / 1.0, 1.0 / last_x));
+            constant += 0.5 * constant * (2.0 * ((float)rand() / (float)(RAND_MAX)) - 1);
+            m = (float)(last_x - first_x) * (((float)rand() / (float)(RAND_MAX)) - 0.5);
+            switch (bin) {
+                case 1:
+                    m *= -1;
+                    break;
+                
+                case 2:
+                    m = m * exp(constant * last_y);
+                    constant *= -1;
+                    break;
+
+                case 3:
+                    m = -m * (1 + exp(constant * last_y));
+                    constant *= -1;
+                    break;
+
+                default:
+                    break;
+            }
+            new_func = create_function('2', m, constant, 0.0, 0.0, 0.0);
             break;
 
         case '3':
+            bin = rand() % 2 == 1 ? 1 : -1;
+            m = bin * last_y * ((float)rand() / (float)(RAND_MAX));
+            constant = (M_PI / (4 * last_x)) * (79 * ((float)rand() / (float)(RAND_MAX)) + 1);
+            new_func = create_function('3', m, constant, 0.0, 0.0, 0.0);
             break;
 
         case '4':
+            bin = rand() % 2 == 1 ? 1 : -1;
+            m = bin * last_y * ((float)rand() / (float)(RAND_MAX));
+            constant = (M_PI / (4 * last_x)) * (79 * ((float)rand() / (float)(RAND_MAX)) + 1);
+            new_func = create_function('4', m, constant, 0.0, 0.0, 0.0);
             break;
         
         default:
@@ -106,8 +199,8 @@ void init_population(int size) {
     individuals_created = 0;
 
     for (int i = 0; i < size; i++) {
-        char f_id = ((i % 4) / 2) + '0';
-        char g_id = (i % 2) + '0';
+        char f_id = ((i % 25) / 5) + '0';
+        char g_id = (i % 5) + '0';
         Individual* new_individual = create_individual(f_id, g_id);
 
         if (first_individual == NULL) first_individual = new_individual;
@@ -139,7 +232,19 @@ float get_value(Function* func, int x) {
             break;
         
         case '1':
-            return func->k1 * x + func->k0;
+            return func->k4 * pow(x, 4) + func->k3 * pow(x, 3) + func->k2 * pow(x, 2) + func->k1 * x + func->k0;
+            break;
+
+        case '2':
+            return func->k0 * exp(func->k1 * x);
+            break;
+
+        case '3':
+            return func->k0 * sin(func->k1 * x);
+            break;
+
+        case '4':
+            return func->k0 * cos(func->k1 * x);
             break;
         
         default:
