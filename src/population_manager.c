@@ -356,7 +356,7 @@ void crossover_temp(Individual* a, Individual* b) {
 void crossover() {
     int size, i = 0, j, to_crossover, choice;
     Individual* temp;
-    new_offspring == NULL;
+    new_offspring = NULL;
     size_offspring = 0;
     limit_offspring = 0;
     while(i < selected){

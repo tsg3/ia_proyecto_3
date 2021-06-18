@@ -31,7 +31,7 @@ int main() {
 
     generations = 0;
     // This while should continue after finding a good result
-    while (generations < 1) {
+    while (generations < 100) {
         selection();
         crossover();
         calc_fitness_offspring();
