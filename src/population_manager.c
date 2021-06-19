@@ -314,16 +314,6 @@ void selection() {
         }
         temp = temp->next;
     }
-    if (selected < max_size) {
-        Individual** temp_ptr = (Individual**)realloc(selection_ptr, sizeof(Individual*) * selected);
-        if (temp_ptr == NULL) { 
-            free(selection_ptr);
-            return;
-        } 
-        else {
-            selection_ptr = temp_ptr; 
-        }
-    }
 }
 
 void free_individuals() {
@@ -488,16 +478,6 @@ void crossover() {
         }
         free(crossover_ptr);
         i++;
-    }
-    if (size_offspring < 2 * selected) {
-        Individual** temp_ptr = (Individual**)realloc(new_offspring, sizeof(Individual*) * size_offspring);
-        if (temp_ptr == NULL) { 
-            free(new_offspring);
-            return;
-        } 
-        else {
-            new_offspring = temp_ptr; 
-        }
     }
 }
 
