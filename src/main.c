@@ -39,7 +39,7 @@ int main() {
 
     generations = 0;
     // This while should continue after finding a good result
-    while (generations < 0) {
+    while (generations < 1) {
         selection();
         crossover();
         calc_fitness_offspring();
@@ -48,8 +48,8 @@ int main() {
         generations++;
     }
 
-    printf("<<< Population %d >>>\n", generations);
-    print_population();
+    // printf("<<< Population %d >>>\n", generations);
+    // print_population();
 
     // Free the pointers used
     

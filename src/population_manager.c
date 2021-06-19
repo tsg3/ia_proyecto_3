@@ -281,43 +281,48 @@ void calc_fitness_temp(Individual* individual) {
 }
 
 void selection() {
-    int size = 25;
+    int max_size = max_population / 4;
     selected = 0;
-    selection_ptr = (Individual**)malloc(sizeof(Individual*) * size);
+    selection_ptr = (Individual**)malloc(sizeof(Individual*) * max_size);
 
     Individual* temp = first_individual;
     float divisor = (highest_fitness - lowest_fitness) / 100;
+    int high_temp = highest_fitness;
+    int low_temp = lowest_fitness;
+    int order_h = 0;
+    int order_l = 0;
+    while (high_temp != 0 || low_temp != 0) {
+        if (high_temp != 0) {
+            high_temp /= 10;
+            order_h++;
+        }
+        if (low_temp != 0) {
+            low_temp /= 10;
+            order_l++;
+        }
+    }
+    int range = order_h - order_l;
 
     int _rand;
     bool dec;
-    while (temp != NULL) {
+    while (temp != NULL && selected < max_size) {
         _rand = rand() % 101;
-        dec = _rand > 33 + (temp->fitness - lowest_fitness) / divisor ? true : false; // modificar
+        dec = _rand > 12.5 * (float)range + (temp->fitness - lowest_fitness) / divisor ? true : false; // modificar
         if (dec) {
-            if (selected >= size) {
-                size += 25;
-                Individual** temp_ptr = (Individual**)realloc(selection_ptr, 
-                    sizeof(Individual*) * size);
-                if (temp_ptr == NULL) { 
-                    free(selection_ptr);
-                    return;
-                } 
-                else {
-                    selection_ptr = temp_ptr; 
-                }
-            }
             *(selection_ptr + selected) = temp;
             selected++;
         }
         temp = temp->next;
     }
-    Individual** temp_ptr = (Individual**)realloc(selection_ptr, sizeof(Individual*) * selected);
-    if (temp_ptr == NULL) { 
-        free(selection_ptr);
-        return;
-    } 
-    else {
-        selection_ptr = temp_ptr; 
+    if (selected < max_size) {
+        Individual** temp_ptr = (Individual**)realloc(selection_ptr, sizeof(Individual*) * selected);
+        if (temp_ptr == NULL) { 
+            free(selection_ptr);
+            return;
+        } 
+        else {
+            selection_ptr = temp_ptr; 
+        }
     }
 }
 
@@ -431,56 +436,36 @@ void mix_genes(Individual* par_a, Individual* par_b, Individual* off_a, Individu
 }
 
 void crossover_temp(Individual* a, Individual* b) {
-    if (size_offspring < max_population) {
-        if (new_offspring == NULL){
-            limit_offspring = selected;
-            new_offspring = (Individual**)malloc(sizeof(Individual*) * limit_offspring);
-        }
-        if (size_offspring >= limit_offspring - 3) {
-            limit_offspring += selected;
-            if (limit_offspring > max_population) limit_offspring = max_population;
-            Individual** temp_ptr = (Individual**)realloc(new_offspring, 
-                sizeof(Individual*) * limit_offspring);
-            if (temp_ptr == NULL) { 
-                free(new_offspring);
-                return;
-            } 
-            else {
-                new_offspring = temp_ptr; 
-            }
-        }
-        Individual* new_a = create_individual(a->f->type, a->g->type);
-        Individual* new_b = create_individual(b->f->type, b->g->type);
-        *(new_offspring + size_offspring) = new_a;
-        size_offspring++;
-        *(new_offspring + size_offspring) = new_b;
-        size_offspring++;
-        if(a->f->type == b->f->type && a->g->type == b->g->type) {
-            mix_genes(a, b, new_a, new_b, true, false, false, true);
-        } else if (a->f->type == b->g->type && a->g->type == b->f->type) {
-            mix_genes(a, b, new_a, new_b, false, true, true, false);
-        } else if (a->f->type == b->f->type) {
-            mix_genes(a, b, new_a, new_b, true, false, false, false);
-        } else if (a->f->type == b->g->type) {
-            mix_genes(a, b, new_a, new_b, false, true, false, false);
-        } else if (a->g->type == b->f->type) {
-            mix_genes(a, b, new_a, new_b, false, false, true, false);
-        } else {
-            mix_genes(a, b, new_a, new_b, false, false, false, true);
-        }
+    Individual* new_a = create_individual(a->f->type, a->g->type);
+    Individual* new_b = create_individual(b->f->type, b->g->type);
+    *(new_offspring + size_offspring) = new_a;
+    size_offspring++;
+    *(new_offspring + size_offspring) = new_b;
+    size_offspring++;
+    if(a->f->type == b->f->type && a->g->type == b->g->type) {
+        mix_genes(a, b, new_a, new_b, true, false, false, true);
+    } else if (a->f->type == b->g->type && a->g->type == b->f->type) {
+        mix_genes(a, b, new_a, new_b, false, true, true, false);
+    } else if (a->f->type == b->f->type) {
+        mix_genes(a, b, new_a, new_b, true, false, false, false);
+    } else if (a->f->type == b->g->type) {
+        mix_genes(a, b, new_a, new_b, false, true, false, false);
+    } else if (a->g->type == b->f->type) {
+        mix_genes(a, b, new_a, new_b, false, false, true, false);
+    } else {
+        mix_genes(a, b, new_a, new_b, false, false, false, true);
     }
 }
 
 void crossover() {
-    int size, i = 0, j, to_crossover, choice;
+    int i = 0, j, to_crossover, choice;
     Individual* temp;
-    new_offspring = NULL;
+    new_offspring = (Individual**)malloc(sizeof(Individual*) * 2 * selected);
     size_offspring = 0;
     limit_offspring = 0;
     while(i < selected){
         temp = *(selection_ptr + i);
-        size = 10;
-        crossover_ptr = (Individual**)malloc(sizeof(Individual*) * size);
+        crossover_ptr = (Individual**)malloc(sizeof(Individual*) * (selected - 1));
         j = 0;
         to_crossover = 0;
         while (j < selected) {
@@ -492,47 +477,15 @@ void crossover() {
                     || temp->f->type == (*(selection_ptr + j))->g->type
                     || temp->g->type == (*(selection_ptr + j))->f->type
                     || temp->g->type == (*(selection_ptr + j))->g->type){
-                if (selected >= size) {
-                    size += 10;
-                    Individual** temp_ptr = (Individual**)realloc(crossover_ptr, 
-                        sizeof(Individual*) * size);
-                    if (temp_ptr == NULL) { 
-                        free(crossover_ptr);
-                        return;
-                    } 
-                    else {
-                        crossover_ptr = temp_ptr; 
-                    }
-                }
                 *(crossover_ptr + to_crossover) = *(selection_ptr + j);
                 to_crossover++;
             }
             j++;
         }
-        Individual** temp_ptr = (Individual**)realloc(crossover_ptr, 
-            sizeof(Individual*) * to_crossover);
-        if (temp_ptr == NULL) { 
-            free(crossover_ptr);
-            return;
-        } 
-        else {
-            crossover_ptr = temp_ptr; 
-        }
         choice = rand() % to_crossover;
         crossover_temp(temp, *(crossover_ptr + choice));
         free(crossover_ptr);
         i++;
-    }
-    if (new_offspring != NULL) {
-        Individual** temp_ptr = (Individual**)realloc(new_offspring, 
-            sizeof(Individual*) * size_offspring);
-        if (temp_ptr == NULL) { 
-            free(new_offspring);
-            return;
-        } 
-        else {
-            new_offspring = temp_ptr; 
-        }
     }
 }
 
