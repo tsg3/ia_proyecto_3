@@ -482,10 +482,22 @@ void crossover() {
             }
             j++;
         }
-        choice = rand() % to_crossover;
-        crossover_temp(temp, *(crossover_ptr + choice));
+        if (to_crossover > 0) {
+            choice = rand() % to_crossover;
+            crossover_temp(temp, *(crossover_ptr + choice));
+        }
         free(crossover_ptr);
         i++;
+    }
+    if (size_offspring < 2 * selected) {
+        Individual** temp_ptr = (Individual**)realloc(new_offspring, sizeof(Individual*) * size_offspring);
+        if (temp_ptr == NULL) { 
+            free(new_offspring);
+            return;
+        } 
+        else {
+            new_offspring = temp_ptr; 
+        }
     }
 }
 
