@@ -64,7 +64,7 @@ Individual* create_individual(char type_f, char type_g) {
             bin = rand() % 4;
             constant = log(pow(last_y / 1.0, 1.0 / last_x));
             constant += 0.5 * constant * (2.0 * ((float)rand() / (float)(RAND_MAX)) - 1);
-            m = (float)(last_x - first_x) * (((float)rand() / (float)(RAND_MAX)) - 0.5);
+            m = (float)(last_y - first_y) * (((float)rand() / (float)(RAND_MAX)) - 0.5);
             switch (bin) {
                 case 1:
                     m *= -1;
@@ -148,7 +148,7 @@ Individual* create_individual(char type_f, char type_g) {
             bin = rand() % 4;
             constant = log(pow(last_y / 1.0, 1.0 / last_x));
             constant += 0.5 * constant * (2.0 * ((float)rand() / (float)(RAND_MAX)) - 1);
-            m = (float)(last_x - first_x) * (((float)rand() / (float)(RAND_MAX)) - 0.5);
+            m = (float)(last_y - first_y) * (((float)rand() / (float)(RAND_MAX)) - 0.5);
             switch (bin) {
                 case 1:
                     m *= -1;
@@ -498,7 +498,6 @@ void calc_fitness_offspring() {
 }
 
 void mutation_temp(Individual* ind) {
-    // printf("Generation %d | ID %d mutated!\n", generations, ind->id);
     int choice = rand() % 2;
     int sign = rand() % 2 == 1 ? 1 : -1;
     if (choice == 0) {
@@ -506,7 +505,62 @@ void mutation_temp(Individual* ind) {
             case '0':
                 ind->f->k0 += (float)rand() / (float)(RAND_MAX) * sign;
                 break;
+
+            case '1':
+                choice = rand() % 5;
+                switch (choice) {
+                    case 0:
+                        ind->f->k0 += sign * (float)rand() / (float)(RAND_MAX);
+                        break;
+
+                    case 1:
+                        ind->f->k1 += sign * (float)rand() / (float)(RAND_MAX);
+                        break;
+
+                    case 2:
+                        ind->f->k2 += 0.5 * sign * (float)rand() / (float)(RAND_MAX);
+                        break;
+
+                    case 3:
+                        ind->f->k3 += 0.25 * sign * (float)rand() / (float)(RAND_MAX);
+                        break;
+
+                    case 4:
+                        ind->f->k4 += 0.125 * sign * (float)rand() / (float)(RAND_MAX);
+                        break;
+
+                    default:
+                        break;
+                }
+                break;
             
+            case '2':
+                choice = rand() % 2;
+                if (choice == 0) {
+                    ind->f->k0 += ind->f->k0 * (((float)rand() / (float)(RAND_MAX)) - 0.5);
+                } else {
+                    ind->f->k1 += ind->f->k1 * 0.5 * sign * (float)rand() / (float)(RAND_MAX);
+                }
+                break;
+
+            case '3':
+                choice = rand() % 2;
+                if (choice == 0) {
+                    ind->f->k0 += 2 * sign * (float)rand() / (float)(RAND_MAX);
+                } else {
+                    ind->f->k1 += sign * 0.05 * (float)rand() / (float)(RAND_MAX);
+                }
+                break;
+
+            case '4':
+                choice = rand() % 2;
+                if (choice == 0) {
+                    ind->f->k0 += 2 * sign * (float)rand() / (float)(RAND_MAX);
+                } else {
+                    ind->f->k1 += sign * 0.05 * (float)rand() / (float)(RAND_MAX);
+                }
+                break;
+
             default:
                 break;
         }
@@ -514,6 +568,61 @@ void mutation_temp(Individual* ind) {
         switch (ind->g->type) {
             case '0':
                 ind->g->k0 += (float)rand() / (float)(RAND_MAX) * sign;
+                break;
+
+            case '1':
+                choice = rand() % 5;
+                switch (choice) {
+                    case 0:
+                        ind->g->k0 += sign * (float)rand() / (float)(RAND_MAX);
+                        break;
+
+                    case 1:
+                        ind->g->k1 += sign * (float)rand() / (float)(RAND_MAX);
+                        break;
+
+                    case 2:
+                        ind->g->k2 += 0.5 * sign * (float)rand() / (float)(RAND_MAX);
+                        break;
+
+                    case 3:
+                        ind->g->k3 += 0.25 * sign * (float)rand() / (float)(RAND_MAX);
+                        break;
+
+                    case 4:
+                        ind->g->k4 += 0.125 * sign * (float)rand() / (float)(RAND_MAX);
+                        break;
+
+                    default:
+                        break;
+                }
+                break;
+            
+            case '2':
+                choice = rand() % 2;
+                if (choice == 0) {
+                    ind->g->k0 += ind->f->k0 * (((float)rand() / (float)(RAND_MAX)) - 0.5);
+                } else {
+                    ind->g->k1 += ind->f->k1 * 0.5 * sign * (float)rand() / (float)(RAND_MAX);
+                }
+                break;
+
+            case '3':
+                choice = rand() % 2;
+                if (choice == 0) {
+                    ind->g->k0 += 2 * sign * (float)rand() / (float)(RAND_MAX);
+                } else {
+                    ind->g->k1 += sign * 0.05 * (float)rand() / (float)(RAND_MAX);
+                }
+                break;
+
+            case '4':
+                choice = rand() % 2;
+                if (choice == 0) {
+                    ind->g->k0 += 2 * sign * (float)rand() / (float)(RAND_MAX);
+                } else {
+                    ind->g->k1 += sign * 0.05 * (float)rand() / (float)(RAND_MAX);
+                }
                 break;
             
             default:
@@ -524,7 +633,7 @@ void mutation_temp(Individual* ind) {
 
 void compute_mutations() {
     for (int i = 0; i < size_offspring; i++) {
-        if (rand() % max_population < mutation_prob) 
+        if (max_population * ((float)rand() / (float)(RAND_MAX)) < mutation_prob) 
             mutation_temp(*(new_offspring + i));
     }
 }
