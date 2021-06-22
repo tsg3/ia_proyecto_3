@@ -194,13 +194,15 @@ Individual* create_individual(char type_f, char type_g) {
     calc_fitness_temp(new_individual);
 
     individuals_created++;
+    size_population++;
     return new_individual;
 }
 
-void init_population(int size) {
+void init_population() {
     individuals_created = 0;
+    size_population = 0;
 
-    for (int i = 0; i < size; i++) {
+    for (int i = 0; i < max_population; i++) {
         char f_id = ((i % 25) / 5) + '0';
         char g_id = (i % 5) + '0';
         Individual* new_individual = create_individual(f_id, g_id);
@@ -233,8 +235,44 @@ void init_population(int size) {
             }
         }
     }
+}
 
-    // Agregar demas configuraciones de funciones
+void re_fill_population () {
+    int i = 0, necessary = max_population - size_population;
+    while (i < necessary) {
+        char f_id = ((individuals_created % 25) / 5) + '0';
+        char g_id = (individuals_created % 5) + '0';
+        Individual* new_individual = create_individual(f_id, g_id);
+
+        if (first_individual == NULL) {
+            first_individual = new_individual;
+            last_individual = new_individual;
+        }
+        else {
+            if(first_individual->fitness < new_individual->fitness){
+                new_individual->next = first_individual;
+                first_individual->prev = new_individual;
+                first_individual = new_individual;
+            } else if(last_individual->fitness > new_individual->fitness){
+                new_individual->prev = last_individual;
+                last_individual->next = new_individual;
+                last_individual = new_individual;
+            } else {
+                Individual* prev = first_individual;
+                Individual* temp = prev->next;
+                while(temp != NULL) {
+                    if(temp->fitness < new_individual->fitness) break;
+                    prev = temp;
+                    temp = temp->next;
+                }
+                prev->next = new_individual;
+                new_individual->prev = prev;
+                new_individual->next = temp;
+                temp->prev = new_individual;
+            }
+        }
+        i++;
+    }
 }
 
 float get_value(Function* func, int x) {
@@ -275,7 +313,7 @@ float get_difference(Individual* ind) {
         temp = temp->next;
     }
 
-    return (float) sqrt(sum);
+    return (float) sqrt(sum) / 2.0;
 }
 
 void calc_fitness_temp(Individual* individual) {
@@ -440,6 +478,8 @@ void mix_genes(Individual* par_a, Individual* par_b, Individual* off_a, Individu
 void crossover_temp(Individual* a, Individual* b) {
     Individual* new_a = create_individual(a->f->type, a->g->type);
     Individual* new_b = create_individual(b->f->type, b->g->type);
+    size_population -= 2;
+    individuals_created--;
     *(new_offspring + size_offspring) = new_a;
     size_offspring++;
     // *(new_offspring + size_offspring) = new_b;
@@ -648,15 +688,20 @@ void compute_mutations() {
 void add_offspring() {
     int i = 0;
     Individual* temp;
-    while (i < size_offspring) {
-        temp = first_individual;
-        first_individual = first_individual->next;
-        first_individual->prev = NULL;
-        free(temp->f);
-        free(temp->g);
-        free(temp);
-        i++;
-    } 
+
+    int space = max_population - size_population;
+    if (space - size_offspring < 0) {
+        while (i < size_offspring - space) {
+            temp = first_individual;
+            first_individual = first_individual->next;
+            first_individual->prev = NULL;
+            free(temp->f);
+            free(temp->g);
+            free(temp);
+            i++;
+            size_population--;
+        } 
+    }
 
     for (i = 0; i < size_offspring; i++) {
         if (first_individual == NULL) {
@@ -688,9 +733,11 @@ void add_offspring() {
                 temp->prev = *(new_offspring + i);
             }
         }
+        size_population++;
     }
 
-    free(new_offspring);
+    if (size_offspring != 0)
+        free(new_offspring);
     free(selection_ptr);
 }
 
@@ -702,36 +749,54 @@ void grow_up() {
     }
 }
 
-void kill_old() {
-    int n = 0;
-    if (first_individual != NULL) {
+float sigmoid (int x) {
+    return 1.0 / (1.0 + exp(-0.5 * (x - 10)));
+}
+
+bool kill_old () {
+    Individual* check = first_individual;
+    bool result = true;
+    while (check != NULL) {
+        if (sigmoid(check->age) <= ((float)rand() / (float)(RAND_MAX))) {
+            result = false;
+            break;
+        }
+        check = check->next;
+    }
+    if (first_individual != NULL && !result) {
         Individual* prev = NULL;
         Individual* temp = first_individual;
         while (temp != NULL) {
-            if (temp->age == life_span) {
+            if (sigmoid(temp->age) >= ((float)rand() / (float)(RAND_MAX))) {
                 if (prev == NULL) {
                     first_individual = temp->next;
-                    first_individual->prev = NULL;
+                    if (first_individual == NULL)
+                        last_individual = NULL;
+                    else
+                        first_individual->prev = NULL;
                     free(temp->f);
                     free(temp->g);
                     free(temp);
                     temp = first_individual;
                 } else {
                     prev->next = temp->next;
-                    temp->next->prev = prev;
+                    if (prev->next != NULL)
+                        temp->next->prev = prev;
+                    else
+                        last_individual = prev;
                     free(temp->f);
                     free(temp->g);
                     free(temp);
                     temp = prev->next;
                 }
-                n++;
-                printf("%d FOUND %d\n", generations, n);
+                size_population--;
                 continue;
             }
             prev = temp;
             temp = temp->next;
         }
     }
+    return result;
 }
 
 void reorder_population() {
@@ -781,6 +846,40 @@ void add_diversity() {
         temp = temp->next;
     }
     reorder_population();
+}
+
+void clean_similar (int similar) {
+    int saved = (max_population / 100) + 1;
+    if (similar < saved) return;
+    similar = (similar - saved) / saved;
+    int temp_similar = 0;
+    Individual* temp = last_individual;
+    Individual* prev = temp->prev;
+    while (temp != NULL && saved > 0) {
+        if (temp_similar == 0) {
+            saved--;
+            temp_similar = similar;
+        } else {
+            if (prev == NULL) {
+                first_individual = temp->next;
+                first_individual->prev = NULL;
+                free(temp->f);
+                free(temp->g);
+                free(temp);
+            } else {
+                prev->next = temp->next;
+                temp->next->prev = prev;
+                free(temp->f);
+                free(temp->g);
+                free(temp);
+            }
+            size_population--;
+            temp_similar--;
+        }
+        temp = prev;
+        if (prev != NULL)
+            prev = temp->prev;
+    }
 }
 
 void print_population(){

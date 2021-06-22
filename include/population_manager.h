@@ -51,7 +51,7 @@ int limit_offspring;
 Function* create_function(char, float, float, float, float, float);
 Individual* create_individual(char, char);
 
-void init_population(int);
+void init_population();
 void free_individuals();
 float get_value(Function*, int);
 float get_difference(Individual*);
@@ -67,9 +67,13 @@ void add_offspring();
 void mutation_temp(Individual*, float);
 
 void grow_up();
-void kill_old();
+bool kill_old();
 void reorder_population();
 void add_diversity();
+float sigmoid(int);
+
+void clean_similar(int);
+void re_fill_population();
 
 // test
 
