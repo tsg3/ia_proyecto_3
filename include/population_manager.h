@@ -18,8 +18,10 @@ typedef struct Individual {
     Function* f;
     Function* g;
     struct Individual* next;
+    struct Individual* prev;
     int id;
     float fitness;
+    int age;
 } Individual;
 
 int first_x;
@@ -27,14 +29,17 @@ int first_y;
 int last_x;
 int last_y;
 int approx_m;
+int life_span;
 
 Individual* first_individual;
+Individual* last_individual;
 int individuals_created;
 int max_population;
 float highest_fitness;
 float lowest_fitness;
-int mutation_prob;
+float mutation_prob;
 int generations;
+int size_population;
 
 Individual** selection_ptr;
 int selected;
@@ -59,7 +64,12 @@ void crossover();
 void calc_fitness_offspring();
 void compute_mutations();
 void add_offspring();
-void mutation_temp(Individual*);
+void mutation_temp(Individual*, float);
+
+void grow_up();
+void kill_old();
+void reorder_population();
+void add_diversity();
 
 // test
 
