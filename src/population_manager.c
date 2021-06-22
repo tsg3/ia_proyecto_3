@@ -482,8 +482,6 @@ void crossover_temp(Individual* a, Individual* b) {
     individuals_created--;
     *(new_offspring + size_offspring) = new_a;
     size_offspring++;
-    // *(new_offspring + size_offspring) = new_b;
-    // size_offspring++;
     if(a->f->type == b->f->type && a->g->type == b->g->type) {
         mix_genes(a, b, new_a, new_b, true, false, false, true);
     } else if (a->f->type == b->g->type && a->g->type == b->f->type) {

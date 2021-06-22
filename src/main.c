@@ -29,47 +29,31 @@ int main() {
     last_y = temp->fx;
     approx_m = (last_y - first_y) / (last_x - first_x);
 
-    // Printing the data
-    // Node* temp = data_start;
-    // while (temp != NULL){
-    //     printf("%d,%d\n", temp->x, temp->fx);
-    //     temp = temp->next;
-    // }
-
     // Initialize the population with fitness computing
     init_population();
 
     generations = 0;
-    // printf("\n<<< Initial Population >>>\n\n");
-    // print_population();
+
     // This while should continue after finding a good result
     int i = 0;
     bool res;
-    // while (generations < 10000) {
+
     while (lowest_fitness > 12.5) {
         if (highest_fitness - lowest_fitness < 50) {
-            // printf("8\n");
             add_diversity();
             i++;
         }
-        // printf("1\n");
         grow_up();
-        // printf("2\n");
         res = kill_old();
         if (res)
             break;
         if (size_population == 0) {
             re_fill_population();
         }
-        // printf("3\n");
         selection();
-        // printf("4\n");
         crossover();
-        // printf("5\n");
         compute_mutations();
-        // printf("6\n");
         calc_fitness_offspring();
-        // printf("7\n");
         add_offspring();
         
         highest_fitness = first_individual->fitness;
@@ -82,7 +66,7 @@ int main() {
                 if (temp->fitness < lowest_fitness + 50) count++;
                 temp = temp->next;
             }
-            printf("%d %d %d %d %f %f\n", generations, i, size_population, count, highest_fitness, lowest_fitness);
+            // printf("%d %d %d %d %f %f\n", generations, i, size_population, count, highest_fitness, lowest_fitness);
             if (count < size_population) {
                 clean_similar(count);
                 re_fill_population();
