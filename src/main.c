@@ -79,7 +79,6 @@ int main(int argc, char* argv[]) {
                     if (temp->fitness < lowest_fitness + 50) count++;
                     temp = temp->next;
                 }
-                printf("%d %d %d %d %f %f\n", generations, i, size_population, count, highest_fitness, lowest_fitness);
                 if (count < size_population) {
                     clean_similar(count);
                     re_fill_population();
@@ -90,19 +89,22 @@ int main(int argc, char* argv[]) {
         }
 
         if (lowest_fitness <= 12.5) finish = true;
+
+        printf("\n<<< Iterations completed! >>>\n\n");
+        print_best();
     }
 
     if (res) {
-        printf("\n<<< Population %d was very old >>>\n\n", generations);
-        print_population();
+        printf("\n<<< Generation %d was very old >>>\n\n", generations);
+        print_best();
         exit(1);
     } else if (size_population <= 0) {
         printf("\n<<< No population >>>\n");
         exit(1);
     }
 
-    printf("\n<<< Population %d >>>\n\n", generations);
-    print_population();
+    printf("\n<<< Program finished! Last generation was generation %d >>>\n\n", generations);
+    print_best();
 
     printf("Times of premature convergence %d\n", i);
 

@@ -78,5 +78,6 @@ void re_fill_population();
 // test
 
 void print_population();
+void print_best();
 
 #endif

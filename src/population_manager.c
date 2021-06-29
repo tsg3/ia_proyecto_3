@@ -892,3 +892,67 @@ void print_population(){
         temp_i = temp_i->next;
     }
 }
+
+void print_best () {
+    printf("\nBest individual of generation %d:\n\n", generations);
+    printf("\tID = %d, Fitness = %f, Age = %d\n", 
+        last_individual->id, last_individual->fitness, last_individual->age);
+    printf("\tf = ");
+    Function* temp = last_individual->f;
+    bool k4_0, k3_0, k2_0, k1_0, k0_0;
+    for (int i = 0; i < 2; i++) {
+        switch (temp->type) {
+            case '0':
+                printf("%f", temp->k0);
+                break;
+
+            case '1':
+                k4_0 = temp->k4 != 0.0;
+                k3_0 = temp->k3 != 0.0;
+                k2_0 = temp->k2 != 0.0;
+                k1_0 = temp->k1 != 0.0;
+                k0_0 = temp->k0 != 0.0;
+
+                if (k4_0) {
+                    printf("%fx^4", temp->k4);
+                    if (k3_0 | k2_0 | k1_0 | k0_0) printf(" + ");
+                }
+                if (k3_0) {
+                    printf("%fx^3", temp->k3);
+                    if (k2_0 | k1_0 | k0_0) printf(" + ");
+                }
+                if (k2_0) {
+                    printf("%fx^2", temp->k2);
+                    if (k1_0 | k0_0) printf(" + ");
+                }
+                if (k1_0) {
+                    printf("%fx", temp->k1);
+                    if (k0_0) printf(" + ");
+                }
+                if (k0_0) {
+                    printf("%f", temp->k0);
+                }
+                break;
+
+            case '2':
+                printf("%fe^(%fx)", temp->k0, temp->k1);
+                break;
+
+            case '3':
+                printf("%fsin(%fx)", temp->k0, temp->k1);
+                break;
+
+            case '4':
+                printf("%fcos(%fx)", temp->k0, temp->k1);
+                break;
+            
+            default:
+                break;
+        }
+        if (i == 0) {
+            temp = last_individual->g;
+            printf(" + ");
+        }
+    }
+    printf("\n");
+}
