@@ -30,8 +30,6 @@ int main(int argc, char* argv[]) {
     srand(time(NULL));
 
     max_population = L; // Size of population
-    highest_fitness = -1;
-    lowest_fitness = -1;
     selection_ptr = NULL;
     first_individual = NULL;
     last_individual = NULL;
@@ -54,88 +52,98 @@ int main(int argc, char* argv[]) {
     last_y = temp->fx;
     approx_m = (last_y - first_y) / (last_x - first_x);
 
-    // Initialize the population with fitness computing
-    init_population();
+    int n = 1;
+    while (n < N + 1) {
+        printf("\n<<< Executing Population %d >>>\n\n", n);
 
-    generations = 0;
+        // Initialize the population with fitness computing
+        highest_fitness = -1;
+        lowest_fitness = -1;
+        generations = 0;
+        init_population();
 
-    // This while should continue after finding a good result
-    int i = 0;
-    bool res;
+        // This while should continue after finding a good result
+        int i = 0;
+        bool res = false;
 
-    // iteration system
-    char iters[5];
-    bool finish = false;
-    while (finish == false) {
-        printf("Indique la cantidad de iteraciones que desea ejecutar: ");
+        // iteration system
+        char iters[5];
+        bool finish = false;
+        while (finish == false) {
+            printf("Indique la cantidad de iteraciones que desea ejecutar: ");
 
-        scanf("%s", iters);
-        if (strcmp(iters, "x") == 0) break;
+            scanf("%s", iters);
+            if (strcmp(iters, "x") == 0) break;
 
-        int j = 0;
-        int n = atoi(iters);
-        while (lowest_fitness > 12.5 && j < n) {
-            if (highest_fitness - lowest_fitness < 50) {
-                add_diversity();
-                i++;
-            }
-            grow_up();
-            res = kill_old();
-            if (res) {
-                finish = true;
-                break;
-            }
-            if (size_population == 0) {
-                re_fill_population();
-            }
-            selection();
-            crossover();
-            compute_mutations();
-            calc_fitness_offspring();
-            add_offspring();
-            
-            highest_fitness = first_individual->fitness;
-            lowest_fitness = last_individual->fitness;
-
-            if (generations % 1000 == 0) {
-                int count = 0;
-                Individual* temp = first_individual;
-                while (temp != NULL) {
-                    if (temp->fitness < lowest_fitness + 50) count++;
-                    temp = temp->next;
+            int j = 0;
+            int n = atoi(iters);
+            while (lowest_fitness > 12.5 && j < n) {
+                if (highest_fitness - lowest_fitness < 50) {
+                    add_diversity();
+                    i++;
                 }
-                if (count < size_population) {
-                    clean_similar(count);
+                grow_up();
+                res = kill_old();
+                if (res) {
+                    finish = true;
+                    break;
+                }
+                if (size_population == 0) {
                     re_fill_population();
                 }
+                selection();
+                crossover();
+                compute_mutations();
+                calc_fitness_offspring();
+                add_offspring();
+                
+                highest_fitness = first_individual->fitness;
+                lowest_fitness = last_individual->fitness;
+
+                if (generations % 1000 == 0) {
+                    int count = 0;
+                    Individual* temp = first_individual;
+                    while (temp != NULL) {
+                        if (temp->fitness < lowest_fitness + 50) count++;
+                        temp = temp->next;
+                    }
+                    if (count < size_population) {
+                        clean_similar(count);
+                        re_fill_population();
+                    }
+                }
+                generations++;
+                j++;
             }
-            generations++;
-            j++;
+
+            if (lowest_fitness <= 12.5) finish = true;
+
+            printf("\n<<< Iterations completed! >>>\n\n");
+            print_best();
         }
 
-        if (lowest_fitness <= 12.5) finish = true;
+        if (res) {
+            printf("\n<<< Generation %d was very old >>>\n\n", generations);
+            print_best();
+            exit(1);
+        } else if (size_population <= 0) {
+            printf("\n<<< No population >>>\n");
+            exit(1);
+        }
 
-        printf("\n<<< Iterations completed! >>>\n\n");
+        printf("\n<<< Program finished! Last generation was generation %d >>>\n\n", generations);
         print_best();
+
+        printf("Times of premature convergence %d\n", i);
+
+        // Free the individuals list
+        free_individuals();
+
+        n++;
     }
 
-    if (res) {
-        printf("\n<<< Generation %d was very old >>>\n\n", generations);
-        print_best();
-        exit(1);
-    } else if (size_population <= 0) {
-        printf("\n<<< No population >>>\n");
-        exit(1);
-    }
-
-    printf("\n<<< Program finished! Last generation was generation %d >>>\n\n", generations);
-    print_best();
-
-    printf("Times of premature convergence %d\n", i);
-
-    // Free the pointers used
-    
+    // Free the data list
     free_list();
-    free_individuals();
+
     return 0;
 }

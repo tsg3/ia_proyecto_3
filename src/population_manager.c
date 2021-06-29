@@ -375,6 +375,8 @@ void free_individuals() {
         free(temp->g);
         free(temp);
     }
+    first_individual = NULL;
+    last_individual = NULL;
 }
 
 void mix_genes(Individual* par_a, Individual* par_b, Individual* off_a, Individual* off_b, 
