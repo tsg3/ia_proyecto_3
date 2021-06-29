@@ -313,7 +313,7 @@ float get_difference(Individual* ind) {
         temp = temp->next;
     }
 
-    return (float) sqrt(sum) / 2.0;
+    return (float) sqrt(sum) / (float) (last_x - first_x + 1);
 }
 
 void calc_fitness_temp(Individual* individual) {
