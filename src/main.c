@@ -1,10 +1,35 @@
 #include "../include/population_manager.h"
+#include <ctype.h>
 
 int main(int argc, char* argv[]) {
+
+    if (argc != 3) {
+        printf("Error! Correct syntax: <binary_file> <L> <N>\n");
+        printf("\tL: Max population size.\n\tN: Number of populations.\n");
+        exit(1);
+    }
+
+    bool is_digit = true;
+    for (int i = 1; i < 3; i++) {
+        for (int j = 0; j < strlen((*(argv + i))); j++) {
+            if (!isdigit((*(argv + i))[j])) {
+                is_digit = false;
+                break;
+            }
+        }
+    }
+    if (!is_digit) {
+        printf("Error! 'L' and 'N' must be integers!\n");
+        exit(1);
+    }
+    
+    int L = atoi(*(argv + 1));
+    int N = atoi(*(argv + 2));
+
     // Required for random number generation
     srand(time(NULL));
 
-    max_population = 1000; // Size of population
+    max_population = L; // Size of population
     highest_fitness = -1;
     lowest_fitness = -1;
     selection_ptr = NULL;
