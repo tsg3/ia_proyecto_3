@@ -3,16 +3,20 @@
 
 int main(int argc, char* argv[]) {
 
-    if (argc != 3) {
-        printf("Error! Correct syntax: <binary_file> <L> <N>\n");
-        printf("\tL: Max population size.\n\tN: Number of populations.\n");
+    if (argc != 4) {
+        printf("Error! Correct syntax: <binary_file> <L> <N> <F>\n");
+        printf("\tL: Max population size.\n\tN: Number of populations.\n\tF: Fitness required to finish.\n");
         exit(1);
     }
 
     bool is_digit = true;
-    for (int i = 1; i < 3; i++) {
+    for (int i = 1; i < 4; i++) {
         for (int j = 0; j < strlen((*(argv + i))); j++) {
-            if (!isdigit((*(argv + i))[j])) {
+            if (!isdigit((*(argv + i))[j]) && i != 3) {
+                is_digit = false;
+                break;
+            }
+            if (!isdigit((*(argv + i))[j]) && (*(argv + i))[j] != '.' && i == 3) {
                 is_digit = false;
                 break;
             }
@@ -25,6 +29,7 @@ int main(int argc, char* argv[]) {
     
     int L = atoi(*(argv + 1));
     int N = atoi(*(argv + 2));
+    float F = atof(*(argv + 3));
 
     // Required for random number generation
     srand(time(NULL));
@@ -77,7 +82,7 @@ int main(int argc, char* argv[]) {
 
             int j = 0;
             int n = atoi(iters);
-            while (lowest_fitness > 12.5 && j < n) {
+            while (lowest_fitness > F && j < n) {
                 if (highest_fitness - lowest_fitness < 50) {
                     add_diversity();
                     i++;
@@ -116,18 +121,22 @@ int main(int argc, char* argv[]) {
                 j++;
             }
 
-            if (lowest_fitness <= 12.5) finish = true;
+            if (lowest_fitness <= F) finish = true;
 
             printf("\n<<< Iterations completed! >>>\n\n");
             print_best();
         }
 
-        if (res) {
+        if (res && size_population > 0) {
             printf("\n<<< Generation %d was very old >>>\n\n", generations);
             print_best();
+            free_individuals();
+            free_list();
             exit(1);
         } else if (size_population <= 0) {
             printf("\n<<< No population >>>\n");
+            free_individuals();
+            free_list();
             exit(1);
         }
 
