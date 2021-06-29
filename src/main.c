@@ -1,6 +1,6 @@
 #include "../include/population_manager.h"
 
-int main() {
+int main(int argc, char* argv[]) {
     // Required for random number generation
     srand(time(NULL));
 
@@ -38,41 +38,58 @@ int main() {
     int i = 0;
     bool res;
 
-    while (lowest_fitness > 12.5) {
-        if (highest_fitness - lowest_fitness < 50) {
-            add_diversity();
-            i++;
-        }
-        grow_up();
-        res = kill_old();
-        if (res)
-            break;
-        if (size_population == 0) {
-            re_fill_population();
-        }
-        selection();
-        crossover();
-        compute_mutations();
-        calc_fitness_offspring();
-        add_offspring();
-        
-        highest_fitness = first_individual->fitness;
-        lowest_fitness = last_individual->fitness;
+    // iteration system
+    char iters[5];
+    bool finish = false;
+    while (finish == false) {
+        printf("Indique la cantidad de iteraciones que desea ejecutar: ");
 
-        if (generations % 1000 == 0) {
-            int count = 0;
-            Individual* temp = first_individual;
-            while (temp != NULL) {
-                if (temp->fitness < lowest_fitness + 50) count++;
-                temp = temp->next;
+        scanf("%s", iters);
+        if (strcmp(iters, "x") == 0) break;
+
+        int j = 0;
+        int n = atoi(iters);
+        while (lowest_fitness > 12.5 && j < n) {
+            if (highest_fitness - lowest_fitness < 50) {
+                add_diversity();
+                i++;
             }
-            // printf("%d %d %d %d %f %f\n", generations, i, size_population, count, highest_fitness, lowest_fitness);
-            if (count < size_population) {
-                clean_similar(count);
+            grow_up();
+            res = kill_old();
+            if (res) {
+                finish = true;
+                break;
+            }
+            if (size_population == 0) {
                 re_fill_population();
             }
+            selection();
+            crossover();
+            compute_mutations();
+            calc_fitness_offspring();
+            add_offspring();
+            
+            highest_fitness = first_individual->fitness;
+            lowest_fitness = last_individual->fitness;
+
+            if (generations % 1000 == 0) {
+                int count = 0;
+                Individual* temp = first_individual;
+                while (temp != NULL) {
+                    if (temp->fitness < lowest_fitness + 50) count++;
+                    temp = temp->next;
+                }
+                printf("%d %d %d %d %f %f\n", generations, i, size_population, count, highest_fitness, lowest_fitness);
+                if (count < size_population) {
+                    clean_similar(count);
+                    re_fill_population();
+                }
+            }
+            generations++;
+            j++;
         }
-        generations++;
+
+        if (lowest_fitness <= 12.5) finish = true;
     }
 
     if (res) {
